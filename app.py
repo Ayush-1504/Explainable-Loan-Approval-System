@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import numpy as np
 import joblib
 
@@ -6,13 +7,23 @@ import joblib
 model = joblib.load("models/logistic_regression_model.pkl")
 scaler = joblib.load("models/scaler.pkl")
 
-# App title
-st.title("Explainable Loan Approval System")
+# Page configuration
+st.set_page_config(
+    page_title="Explainable Loan Approval System",
+    page_icon="💰",
+    layout="centered"
+)
 
-st.write("Enter applicant details below:")
+# Title
+st.title("💰 Explainable Loan Approval System")
 
-# User inputs
-# User inputs
+st.markdown("""
+This application predicts whether a loan will be approved or not based on applicant details.
+""")
+
+st.divider()
+
+# User Inputs
 
 gender = st.selectbox(
     "Gender",
@@ -41,22 +52,30 @@ self_employed = st.selectbox(
 
 applicant_income = st.number_input(
     "Applicant Income",
-    min_value=0
+    min_value=1000,
+    max_value=100000,
+    value=5000
 )
 
 coapplicant_income = st.number_input(
     "Coapplicant Income",
-    min_value=0
+    min_value=0,
+    max_value=50000,
+    value=2000
 )
 
 loan_amount = st.number_input(
     "Loan Amount",
-    min_value=0
+    min_value=10,
+    max_value=1000,
+    value=150
 )
 
 loan_amount_term = st.number_input(
     "Loan Amount Term",
-    min_value=0
+    min_value=12,
+    max_value=480,
+    value=360
 )
 
 credit_history = st.selectbox(
@@ -69,7 +88,10 @@ property_area = st.selectbox(
     ["Urban", "Semiurban", "Rural"]
 )
 
-# Convert categorical values to numerical
+# Divider
+st.divider()
+
+# Convert categorical values into numerical format
 
 gender = 1 if gender == "Male" else 0
 
@@ -81,17 +103,19 @@ self_employed = 1 if self_employed == "Yes" else 0
 
 credit_history = 1 if credit_history == "Good" else 0
 
-property_area_mapping = {
-    "Urban": 2,
+property_area_map = {
+    "Rural": 0,
     "Semiurban": 1,
-    "Rural": 0
+    "Urban": 2
 }
 
-property_area = property_area_mapping[property_area]
+property_area = property_area_map[property_area]
 
-# Prediction button
+# Prediction Button
+
 if st.button("Predict Loan Approval"):
 
+    # Create input array
     input_data = np.array([[
         gender,
         married,
@@ -106,14 +130,61 @@ if st.button("Predict Loan Approval"):
         property_area
     ]])
 
-    # Scale data
-    input_data_scaled = scaler.transform(input_data)
+    # Scale input
+    input_scaled = scaler.transform(input_data)
 
     # Prediction
-    prediction = model.predict(input_data_scaled)
+    prediction = model.predict(input_scaled)
 
-    # Result
+    # Probability
+    probability = model.predict_proba(input_scaled)[0][1]
+
+    st.divider()
+
+    # Output Result
+
     if prediction[0] == 1:
-        st.success("Loan Approved ✅")
+        st.success("✅ Loan Approved")
     else:
-        st.error("Loan Rejected ❌")
+        st.error("❌ Loan Not Approved")
+
+    # Show probability
+    st.subheader("Prediction Confidence")
+
+    st.progress(int(probability * 100))
+
+    st.write(f"Approval Probability: **{probability:.2%}**")
+
+    # Feature Summary
+    st.subheader("Applicant Summary")
+
+    summary = pd.DataFrame({
+        "Feature": [
+            "Gender",
+            "Married",
+            "Dependents",
+            "Education",
+            "Self Employed",
+            "Applicant Income",
+            "Coapplicant Income",
+            "Loan Amount",
+            "Loan Amount Term",
+            "Credit History",
+            "Property Area"
+        ],
+        "Value": [
+            gender,
+            married,
+            dependents,
+            education,
+            self_employed,
+            applicant_income,
+            coapplicant_income,
+            loan_amount,
+            loan_amount_term,
+            credit_history,
+            property_area
+        ]
+    })
+
+    st.dataframe(summary, use_container_width=True)
