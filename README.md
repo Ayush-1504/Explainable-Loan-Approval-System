@@ -81,3 +81,31 @@ Explainable-Loan-Approval-System/
 │   └── loan_approval.ipynb
 │
 └── images/
+⚙️ Workflow
+Data Collection
+Data Cleaning & Preprocessing
+Feature Engineering
+Model Training
+Model Evaluation
+Explainable AI using SHAP
+Streamlit Deployment
+GitHub Version Control
+📈 Explainable AI
+
+SHAP (SHapley Additive exPlanations) was implemented to improve model transparency and interpretability.
+
+It explains:
+
+feature contribution,
+prediction impact,
+approval/rejection reasoning.
+🖥️ Streamlit Application
+
+The deployed web application allows users to:
+
+enter applicant details,
+predict loan approval instantly,
+view prediction confidence.
+👨‍💻 Author
+Ayush Sharma
+GitHub: https://github.com/Ayush-1504
